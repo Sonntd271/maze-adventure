@@ -7,7 +7,7 @@ all: run
 OS := $(shell uname)
 
 run:
-	@echo "Detected $(OS)."
+	@echo "Detected $(OS)"
 	@python$(if $(filter $(OS),MINGW64_NT-%,CYGWIN%,MSYS%),,3) src/main.py
 
 setup:

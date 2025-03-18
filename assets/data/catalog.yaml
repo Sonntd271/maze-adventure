@@ -1,0 +1,9 @@
+catalog: 
+  - name: Increase Health
+    cost: 20
+    effect: 20
+    stat: health
+  - name: Increase Damage
+    cost: 30
+    effect: 5
+    stat: damage

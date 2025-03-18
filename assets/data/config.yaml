@@ -1,0 +1,28 @@
+constants:
+  caption: Maze Adventure
+  fps: 60
+  dimensions:
+    screen_width: 1280
+    screen_height: 720
+    map_width: 2000
+    map_height: 2000
+    tile_size: 40
+  colors:
+    white: [255, 255, 255]
+    black: [0, 0, 0]
+    red: [255, 0, 0]
+    blue: [0, 0, 255]
+    green: [0, 255, 0]
+    gray: [200, 200, 200]
+  font:
+    family:
+    size: 36
+  directions:
+    up: [0, -1]
+    down: [0, 1]
+    left: [-1, 0]
+    right: [1, 0]
+  states:
+    lobby: lobby
+    store: store
+    play: play
