@@ -1,7 +1,8 @@
 import pygame
 import classes.common.constants as c
-from classes.ui.healthbar import Healthbar
-from classes.state_manager import state_manager
+from classes.common.utilities import is_walkable
+from classes.game.healthbar import Healthbar
+from classes.resource_manager import resource_manager
 
 
 class Enemy:
@@ -16,10 +17,10 @@ class Enemy:
 
         # Store bomb images for different directions
         self.images = {
-            'up': BOMB_UP,
-            'down': BOMB_DOWN,
-            'left': BOMB_LEFT,
-            'right': BOMB_RIGHT
+            'up': resource_manager.bomb_up,
+            'down': resource_manager.bomb_down,
+            'left': resource_manager.bomb_left,
+            'right': resource_manager.bomb_right
         }
 
         self.current_image = self.images['up']  # Default starting appearance
@@ -90,5 +91,5 @@ class Enemy:
                 self.y < player.y + c.dimensions["tile_size"] and self.y + c.dimensions["tile_size"] > player.y)
 
     def draw(self, camera):
-        state_manager.screen.blit(self.current_image, camera.apply(self))
+        resource_manager.screen.blit(self.current_image, camera.apply(self))
         self.healthbar.draw(self.x, self.y, camera)

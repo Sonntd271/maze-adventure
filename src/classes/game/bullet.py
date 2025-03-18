@@ -1,6 +1,7 @@
 import pygame
 import classes.common.constants as c
-from classes.state_manager import state_manager
+from classes.common.utilities import is_walkable
+from classes.resource_manager import resource_manager
 
 class Bullet:
     def __init__(self, x, y, direction, speed=10):
@@ -26,9 +27,9 @@ class Bullet:
     def draw(self, camera):
         screen_x, screen_y = camera.apply(self)
         if self.direction in ['up', 'down']:
-            pygame.draw.line(state_manager.screen, self.color, (screen_x, screen_y), (screen_x, screen_y - self.height), self.width)
+            pygame.draw.line(resource_manager.screen, self.color, (screen_x, screen_y), (screen_x, screen_y - self.height), self.width)
         else:  # Left or Right
-            pygame.draw.line(state_manager.screen, self.color, (screen_x, screen_y), (screen_x + self.height, screen_y), self.width)
+            pygame.draw.line(resource_manager.screen, self.color, (screen_x, screen_y), (screen_x + self.height, screen_y), self.width)
 
     def is_out_of_bounds(self):
         return self.x < 0 or self.x > c.dimensions["map_width"]  or self.y < 0 or self.y > c.dimensions["map_height"]

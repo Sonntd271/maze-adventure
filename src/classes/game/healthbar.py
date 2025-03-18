@@ -1,6 +1,6 @@
 import pygame
 import classes.common.constants as c
-from classes.state_manager import state_manager
+from classes.resource_manager import resource_manager
 
 
 class Healthbar:
@@ -20,10 +20,10 @@ class Healthbar:
         bar_y = screen_y - 15
         
         # Draw background (empty health)
-        pygame.draw.rect(state_manager.screen, c.colors["black"], (bar_x - 1, bar_y - 1, self.width + 2, self.height + 2))
-        pygame.draw.rect(state_manager.screen, c.colors["red"], (bar_x, bar_y, self.width, self.height))
+        pygame.draw.rect(resource_manager.screen, c.colors["black"], (bar_x - 1, bar_y - 1, self.width + 2, self.height + 2))
+        pygame.draw.rect(resource_manager.screen, c.colors["red"], (bar_x, bar_y, self.width, self.height))
         
         # Draw current health
         if self.current_health > 0:
             current_width = int((self.current_health / self.max_health) * self.width)
-            pygame.draw.rect(state_manager.screen, c.colors["green"], (bar_x, bar_y, current_width, self.height))
+            pygame.draw.rect(resource_manager.screen, c.colors["green"], (bar_x, bar_y, current_width, self.height))

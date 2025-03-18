@@ -25,4 +25,16 @@ constants:
   states:
     lobby: lobby
     store: store
-    play: play
+    game: game
+  images:
+    maze: assets/images/realmaze_1.png
+    bomb:
+      up: assets/images/sprites/bomb_up.png
+      down: assets/images/sprites/bomb_down.png
+      left: assets/images/sprites/bomb_left.png
+      right: assets/images/sprites/bomb_right.png
+    player:
+      up: assets/images/sprites/character_up.png
+      down: assets/images/sprites/character_down.png
+      left: assets/images/sprites/character_left.png
+      right: assets/images/sprites/character_right.png

@@ -1,7 +1,9 @@
 import pygame
 import classes.common.constants as c
-from classes.ui.healthbar import Healthbar
-from classes.state_manager import state_manager
+from classes.common.utilities import is_walkable
+from classes.game.healthbar import Healthbar
+from classes.game.bullet import Bullet
+from classes.resource_manager import resource_manager
 
 
 class Player:
@@ -16,10 +18,10 @@ class Player:
         
         # Dictionary to store player images for each direction
         self.images = {
-            'up': PLAYER_UP,
-            'down': PLAYER_DOWN,
-            'left': PLAYER_LEFT,
-            'right': PLAYER_RIGHT
+            'up': resource_manager.player_up,
+            'down': resource_manager.player_down,
+            'left': resource_manager.player_left,
+            'right': resource_manager.player_right
         }
         
         # Current image based on last direction (start with right)
@@ -55,3 +57,30 @@ class Player:
         # Check if the new position is on a transparent pixel
         if is_walkable(new_x, new_y, maze_image):
             self.x, self.y = new_x, new_y
+    
+    def shoot(self):
+        """Shoots a green laser in the last moved direction."""
+        laser = Bullet(self.x + c.dimensions["tile_size"] // 2, self.y + c.dimensions["tile_size"] // 2, self.last_direction)
+        self.projectiles.append(laser)
+
+    def take_damage(self, amount, current_time):
+        """Player takes damage from enemies"""
+        # Only take damage once per second
+        if current_time - self.last_damage_time >= 1000:  # 1000 ms = 1 second
+            self.healthbar.update(self.healthbar.current_health - amount)
+            self.last_damage_time = current_time
+    
+    def is_alive(self):
+        """Check if player is still alive"""
+        return self.healthbar.current_health > 0
+
+    def draw(self, camera):
+        # Draw current direction image instead of a static image
+        resource_manager.screen.blit(self.current_image, camera.apply(self))
+        
+        # Draw health bar
+        self.healthbar.draw(self.x, self.y, camera)
+        
+        # Draw projectiles
+        for projectile in self.projectiles:
+            projectile.draw(camera)

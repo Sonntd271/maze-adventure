@@ -17,3 +17,6 @@ font = constants["font"]
 directions = constants["directions"]
 states = constants["states"]
 dimensions = constants["dimensions"]
+
+# Images / Sprites
+images = constants["images"]

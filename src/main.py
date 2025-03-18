@@ -1,15 +1,16 @@
 import pygame
-from classes.state_manager import state_manager
-from classes.ui.button import Button
+from classes.resource_manager import resource_manager
+from classes.common.button import Button
 import classes.common.constants as c
+from classes.stage_manager import game, store
 
-if __name__ == "__main__":
-    play_button = Button(300, 200, 200, 50, "Play", lambda: print("Play clicked"))
-    store_button = Button(300, 300, 200, 50, "Store", lambda: print("Store clicked"))
+def lobby():
+    play_button = Button(300, 200, 200, 50, "Play", lambda: resource_manager.set_state(c.states["game"]))
+    store_button = Button(300, 300, 200, 50, "Store", lambda: resource_manager.set_state(c.states["store"]))
 
     running = True
-    while running:
-        state_manager.screen.fill((255, 255, 255))
+    while running and resource_manager.current_state == c.states["lobby"]:
+        resource_manager.screen.fill((255, 255, 255))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -25,5 +26,14 @@ if __name__ == "__main__":
         store_button.draw()
         
         pygame.display.flip()
-    
+
+        # Transition to the next state
+        if resource_manager.current_state == c.states["game"]:
+            game()
+        elif resource_manager.current_state == c.states["store"]:
+            store()
+
     pygame.quit()
+
+if __name__ == "__main__":
+    lobby()

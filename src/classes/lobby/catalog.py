@@ -1,5 +1,5 @@
 import yaml
-from upgrade import Upgrade
+from classes.lobby.upgrade import Upgrade
 
 CATALOG_FP = "assets/data/catalog.yaml"
 
@@ -19,6 +19,7 @@ class Catalog:
         ]
 
     def purchase(self, player, item_id):
+        # TODO: Use currency class
         if 0 <= item_id < len(self.items):
             item = self.items[item_id]
             # If player has enough gold
