@@ -1,39 +1,41 @@
 import pygame
-from classes.resource_manager import resource_manager
-from classes.common.button import Button
-import classes.common.constants as c
-from classes.stage_manager import game, store
+from modules.character import Character
+from modules.healthbar import Healthbar
 
-def lobby():
-    play_button = Button(300, 200, 200, 50, "Play", lambda: resource_manager.set_state(c.states["game"]))
-    store_button = Button(300, 300, 200, 50, "Store", lambda: resource_manager.set_state(c.states["store"]))
+# Pygame setup
+pygame.init()
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Maze Adventure")
+clock = pygame.time.Clock()
 
-    running = True
-    while running and resource_manager.current_state == c.states["lobby"]:
-        resource_manager.screen.fill((255, 255, 255))
+# Initialize character and healthbar
+healthbar = Healthbar(max_health=100, starting_health=75)
+character = Character(x=100, y=100, speed=5, healthbar=healthbar)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                if play_button.is_clicked(pos):
-                    play_button.action()
-                elif store_button.is_clicked(pos):
-                    store_button.action()
-        
-        play_button.draw()
-        store_button.draw()
-        
-        pygame.display.flip()
+running = True
+while running:
+    screen.fill((30, 30, 30))
 
-        # Transition to the next state
-        if resource_manager.current_state == c.states["game"]:
-            game()
-        elif resource_manager.current_state == c.states["store"]:
-            store()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-    pygame.quit()
+    # Movement handling
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        character.move("up")
+    if keys[pygame.K_s]:
+        character.move("down")
+    if keys[pygame.K_a]:
+        character.move("left")
+    if keys[pygame.K_d]:
+        character.move("right")
 
-if __name__ == "__main__":
-    lobby()
+    # Draw character
+    character.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
