@@ -1,8 +1,10 @@
 import pygame
-from modules.player import Player
-from modules.healthbar import Healthbar
-from modules.map import Map
-from modules.camera import Camera
+from modules.entities.player import Player
+from modules.core.healthbar import Healthbar
+from modules.core.map import Map
+from modules.core.camera import Camera
+from modules.core.currency import Currency
+from modules.core.catalog import Catalog
 from logic import *
 
 pygame.init()
@@ -23,9 +25,13 @@ start = map_info["start"]
 exit_tile = map_info["exit"]
 enemies = spawn_enemies(10, layout, TILE_SIZE)
 
-healthbar = Healthbar(100, 100)
+healthbar = Healthbar(100)
 player = Player(x=start[0] * TILE_SIZE, y=start[1] * TILE_SIZE, speed=3, healthbar=healthbar)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE)
+currency = Currency(initial_gold=200)
+catalog = Catalog()
+
+lobby_screen(screen, player, currency, catalog, SCREEN_WIDTH)
 
 # Game loop
 running = True
@@ -43,11 +49,11 @@ while running:
     for bullet in player.bullets:
         for enemy in enemies:
             if enemy.alive:
-                bx, by = bullet.x, bullet.y
+                bx, by = bullet.position
                 rect = pygame.Rect(enemy.position[0], enemy.position[1], enemy.size, enemy.size)
                 if rect.collidepoint(bx, by):
-                    enemy.take_damage(25)
-                    bullet.active = False
+                    enemy.take_damage(player.bullet_damage)
+                    bullet.deactivate()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

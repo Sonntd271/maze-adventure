@@ -1,5 +1,5 @@
 import pygame
-from modules.healthbar import Healthbar
+from modules.core.healthbar import Healthbar
 
 class Character:
     def __init__(self, x, y, speed, healthbar: Healthbar, size=20, color=(0, 128, 255)):
@@ -67,7 +67,7 @@ class Character:
         self.health.draw(surface, self.__position[0], self.__position[1] - 15)
 
 if __name__ == "__main__":
-    character = Character(0, 0, 5, healthbar=Healthbar(100, 100))
+    character = Character(0, 0, 5, healthbar=Healthbar(100))
     
     print("# ===== Testing negative speed ===== #")
     try:

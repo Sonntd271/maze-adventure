@@ -1,6 +1,6 @@
 import pygame
-from modules.enemy import Enemy
-from modules.healthbar import Healthbar
+from modules.entities.enemy import Enemy
+from modules.core.healthbar import Healthbar
 
 def draw_character(screen, character, camera):
     x, y = character.position
@@ -53,7 +53,43 @@ def spawn_enemies(num, layout, tile_size):
         x, y = random.randint(1, w - 2), random.randint(1, h - 2)
         if layout[y][x] == 0:
             ex, ey = x * tile_size, y * tile_size
-            enemy = Enemy(ex, ey, speed=2, healthbar=Healthbar(50, 50))
+            enemy = Enemy(ex, ey, speed=1, healthbar=Healthbar(50))
             enemies.append(enemy)
             count += 1
     return enemies
+
+def lobby_screen(screen, player, currency, catalog, screen_width):
+    font = pygame.font.SysFont(None, 28)
+
+    while True:
+        screen.fill((20, 20, 20))
+
+        title = font.render("=== UPGRADE LOBBY ===", True, (255, 255, 255))
+        screen.blit(title, (screen_width//2 - 100, 50))
+
+        gold_display = font.render(f"Gold: {currency.gold}", True, (255, 215, 0))
+        screen.blit(gold_display, (50, 100))
+
+        for idx, upgrade in enumerate(catalog.items):
+            u_text = f"{idx + 1}. {upgrade.name} (+{upgrade.value}) - {upgrade.cost} gold"
+            upgrade_surf = font.render(u_text, True, (255, 255, 255))
+            screen.blit(upgrade_surf, (50, 150 + idx * 40))
+
+        start_surf = font.render("Press ENTER to start", True, (180, 180, 180))
+        screen.blit(start_surf, (50, 300))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                if pygame.K_1 <= event.key <= pygame.K_3:
+                    idx = event.key - pygame.K_1
+                    if idx < len(catalog.items):
+                        upgrade = catalog.items[idx]
+                        if currency.spend(upgrade.cost):
+                            player.apply_upgrade(upgrade)
+                elif event.key == pygame.K_RETURN:
+                    return

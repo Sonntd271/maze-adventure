@@ -1,9 +1,9 @@
 import pygame
 
 class Healthbar:
-    def __init__(self, max_health, starting_health):
+    def __init__(self, max_health):
         self.__max_health = max_health
-        self.current_health = starting_health
+        self.current_health = self.__max_health
 
     @property
     def max_health(self):
@@ -33,7 +33,7 @@ class Healthbar:
 
 
 if __name__ == "__main__":
-    healthbar = Healthbar(100, 100)
+    healthbar = Healthbar(100)
     
     print("# ===== Testing max_health setter ===== #")
     print(f"Initial: {healthbar.max_health}")
