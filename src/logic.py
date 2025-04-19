@@ -96,11 +96,10 @@ def lobby_screen(screen, player, currency, catalog, screen_width):
                         upgrade = catalog.items[idx]
                         if currency.spend(upgrade.cost):
                             player.apply_upgrade(upgrade)
+                            currency.save(catalog.items)
                 elif event.key == pygame.K_r:
                     currency.reset()
                     for _ in range(len(catalog.items)):
                         catalog.items[_].purchased = False
                 elif event.key == pygame.K_RETURN:
                     return
-        
-    currency.save([u.name for u in catalog.items if u.purchased])

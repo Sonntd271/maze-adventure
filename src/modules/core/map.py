@@ -11,7 +11,6 @@ class Map:
     def __init__(self, rows, cols, cell_size=50):
         self.__rows = rows // cell_size
         self.__cols = cols // cell_size
-        self.__cell_size = cell_size
         self.__levels = {}
 
     @property

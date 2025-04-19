@@ -9,6 +9,7 @@ class Enemy(Character):
         self.sprite_index = 0
         self.last_sprite_change = 0
         self.size = size
+        self.__damage = 50
         self.images = {
             'up': pygame.image.load('assets/images/sprites/bomb_up.png').convert_alpha(),
             'down': pygame.image.load('assets/images/sprites/bomb_down.png').convert_alpha(),
@@ -17,14 +18,14 @@ class Enemy(Character):
         }
         self.__scale_sprites()
         self.current_image = self.images['down']
-        
-    def __scale_sprites(self):
-        for sprite in self.images.keys():
-            self.images[sprite] = pygame.transform.scale(self.images[sprite], (self.size, self.size))
 
     @property
     def alive(self):
         return self.__alive
+    
+    def __scale_sprites(self):
+        for sprite in self.images.keys():
+            self.images[sprite] = pygame.transform.scale(self.images[sprite], (self.size, self.size))
 
     def update(self, player, game_map, level, tile_size):
         if not self.__alive:
@@ -90,7 +91,7 @@ class Enemy(Character):
         rect_self = pygame.Rect(*self.position, self.size, self.size)
         rect_player = pygame.Rect(*player.position, player.size, player.size)
         if rect_self.colliderect(rect_player):
-            player.take_damage(25)
+            player.take_damage(self.__damage)
             self.health.update_health(-9999)
             self.__alive = False
 

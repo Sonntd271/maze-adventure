@@ -8,14 +8,18 @@ from modules.core.catalog import Catalog
 from logic import *
 
 pygame.init()
+pygame.mouse.set_visible(False)
 
 # Constants
 CELL_SIZE = 50
 TILE_SIZE = CELL_SIZE
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
+MAX_LEVEL = 4
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Maze Adventure")
 clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 36)
 
 # Setup
 level = 1
@@ -44,6 +48,13 @@ lobby_screen(screen, player, currency, catalog, SCREEN_WIDTH)
 running = True
 while running:
     screen.fill((0, 0, 0))
+
+    level_text = font.render(f"Level: {level}", True, (255, 255, 255))
+    screen.blit(level_text, (10, 10))
+
+    hint_text = font.render("Press ESC to return to Lobby", True, (255, 255, 100))
+    screen.blit(hint_text, (10, 30))
+
     camera.follow(player.position, game_map.width, game_map.height)
     camera.draw_map(screen, layout, exit_tile)
 
@@ -67,6 +78,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            currency.save(catalog.items)
+            lobby_screen(screen, player, currency, catalog, SCREEN_WIDTH)
 
     keys = pygame.key.get_pressed()
 
@@ -99,18 +113,19 @@ while running:
     if player_tile == exit_tile:
         level += 1
         map_info = game_map.fetch_map_level(level)
-        if map_info:
-            currency.save_reward(50, catalog.items)
-            layout = map_info["layout"]
-            start = map_info["start"]
-            exit_tile = map_info["exit"]
-            player.position = [start[0] * TILE_SIZE, start[1] * TILE_SIZE]
-            enemies = spawn_enemies(num=10, layout=layout, tile_size=TILE_SIZE)
-            player.bullets.clear()
-        else:
+        if level > MAX_LEVEL:
             print("You win!")
             running = False
-    
+        else:
+            if map_info:
+                currency.save_reward(50, catalog.items)
+                layout = map_info["layout"]
+                start = map_info["start"]
+                exit_tile = map_info["exit"]
+                player.position = [start[0] * TILE_SIZE, start[1] * TILE_SIZE]
+                enemies = spawn_enemies(num=level * 10, layout=layout, tile_size=TILE_SIZE)
+                player.bullets.clear()
+
     if not player.is_alive():
         print("Game Over")
         running = False

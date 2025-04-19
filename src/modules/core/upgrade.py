@@ -26,4 +26,5 @@ class Upgrade:
     def count(self): 
         return self.__count
     
-    def increment(self): self.__count += 1
+    def increment(self): 
+        self.__count += 1
