@@ -1,11 +1,26 @@
 import pygame
 from modules.core.character import Character
+from modules.core.healthbar import Healthbar
 
 class Enemy(Character):
-    def __init__(self, x, y, speed, healthbar):
+    def __init__(self, x, y, speed, healthbar: Healthbar, size=32):
         super().__init__(x, y, speed, healthbar)
-        self.__color = (200, 0, 0)
         self.__alive = True
+        self.sprite_index = 0
+        self.last_sprite_change = 0
+        self.size = size
+        self.images = {
+            'up': pygame.image.load('assets/images/sprites/bomb_up.png').convert_alpha(),
+            'down': pygame.image.load('assets/images/sprites/bomb_down.png').convert_alpha(),
+            'left': pygame.image.load('assets/images/sprites/bomb_left.png').convert_alpha(),
+            'right': pygame.image.load('assets/images/sprites/bomb_right.png').convert_alpha()
+        }
+        self.__scale_sprites()
+        self.current_image = self.images['down']
+        
+    def __scale_sprites(self):
+        for sprite in self.images.keys():
+            self.images[sprite] = pygame.transform.scale(self.images[sprite], (self.size, self.size))
 
     @property
     def alive(self):
@@ -14,59 +29,54 @@ class Enemy(Character):
     def update(self, player, game_map, level, tile_size):
         if not self.__alive:
             return
+        self.__move_toward_player(player, game_map, level, tile_size)
 
+    def __can_see_player(self, player, game_map, level, tile_size):
+        steps = 4
+        x, y = self.position
         px, py = player.position
-        ex, ey = self.position
+        dx = px - x
+        dy = py - y
+        dist = max(abs(dx), abs(dy))
+        if dist == 0:
+            return True
+        step_x = dx / dist
+        step_y = dy / dist
 
-        if not self._has_clear_path(ex, ey, px, py, game_map, level, tile_size):
-            return
+        for _ in range(0, int(dist), steps):
+            x += step_x * steps
+            y += step_y * steps
+            tile_x = int(x // tile_size)
+            tile_y = int(y // tile_size)
+            if not game_map.is_walkable(level, tile_x, tile_y):
+                return False
+        return True
 
-        dx = 1 if px > ex else -1 if px < ex else 0
-        dy = 1 if py > ey else -1 if py < ey else 0
+    def __move_toward_player(self, player, game_map, level, tile_size):
+        now = pygame.time.get_ticks()
+        x, y = self.position
+        px, py = player.position
 
-        if abs(px - ex) > abs(py - ey):
-            self.__move_towards(dx, 0, game_map, level, tile_size)
+        if self.__can_see_player(player, game_map, level, tile_size):
+            dx = 1 if px > x else -1 if px < x else 0
+            dy = 1 if py > y else -1 if py < y else 0
+
+            if abs(dx) > abs(dy):
+                self.current_image = self.images['right'] if dx > 0 else self.images['left']
+            elif abs(dy) > 0:
+                self.current_image = self.images['down'] if dy > 0 else self.images['up']
+
+            next_x = x + dx * self.speed
+            next_y = y + dy * self.speed
+
+            if game_map.is_walkable(level, int(next_x // tile_size), int(next_y // tile_size)):
+                self.position = [next_x, next_y]
         else:
-            self.__move_towards(0, dy, game_map, level, tile_size)
-
-    def _has_clear_path(self, ex, ey, px, py, game_map, level, tile_size):
-        if int(ex // tile_size) == int(px // tile_size):
-            x = int(ex // tile_size)
-            y1, y2 = sorted([int(ey // tile_size), int(py // tile_size)])
-            for y in range(y1 + 1, y2):
-                if not game_map.is_walkable(level, x, y):
-                    return False
-            return True
-
-        elif int(ey // tile_size) == int(py // tile_size):
-            y = int(ey // tile_size)
-            x1, x2 = sorted([int(ex // tile_size), int(px // tile_size)])
-            for x in range(x1 + 1, x2):
-                if not game_map.is_walkable(level, x, y):
-                    return False
-            return True
-
-        return False
-
-    def __move_towards(self, dx, dy, game_map, level, tile_size):
-        next_x = self.position[0] + dx * self.speed
-        next_y = self.position[1] + dy * self.speed
-
-        if abs(next_x % tile_size) < 1:
-            next_x = round(next_x / tile_size) * tile_size
-        if abs(next_y % tile_size) < 1:
-            next_y = round(next_y / tile_size) * tile_size
-
-        # Check corners
-        corners = [
-            (next_x, next_y),
-            (next_x + self.size - 1, next_y),
-            (next_x, next_y + self.size - 1),
-            (next_x + self.size - 1, next_y + self.size - 1),
-        ]
-
-        if all(game_map.is_walkable(level, int(cx // tile_size), int(cy // tile_size)) for cx, cy in corners):
-            self.position = [next_x, next_y]
+            if now - self.last_sprite_change > 2000:
+                dirs = ['up', 'right', 'down', 'left']
+                self.sprite_index = (self.sprite_index + 1) % 4
+                self.current_image = self.images[dirs[self.sprite_index]]
+                self.last_sprite_change = now
 
     def take_damage(self, damage):
         if self.is_alive():
@@ -86,9 +96,13 @@ class Enemy(Character):
 
     def draw(self, surface, camera):
         if self.__alive:
-            pygame.draw.rect(surface, self.__color, (
-                self.position[0] - camera.offset_x,
-                self.position[1] - camera.offset_y,
-                self.size,
-                self.size
-            ))
+            x = self.position[0] - camera.offset_x
+            y = self.position[1] - camera.offset_y
+            surface.blit(self.current_image, (x, y))
+
+            if self.health.current_health < self.health.max_health:
+                self.health.draw(
+                    surface,
+                    x,
+                    y - 10
+                )

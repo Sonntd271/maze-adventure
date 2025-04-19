@@ -10,15 +10,16 @@ from logic import *
 pygame.init()
 
 # Constants
-TILE_SIZE = 40
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+CELL_SIZE = 50
+TILE_SIZE = CELL_SIZE
+SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Maze Adventure")
 clock = pygame.time.Clock()
 
 # Setup
 level = 1
-game_map = Map(height=15, width=15)
+game_map = Map(rows=15 * CELL_SIZE, cols=15 * CELL_SIZE, cell_size=CELL_SIZE)
 map_info = game_map.fetch_map_level(level)
 layout = map_info["layout"]
 start = map_info["start"]
@@ -26,10 +27,16 @@ exit_tile = map_info["exit"]
 enemies = spawn_enemies(10, layout, TILE_SIZE)
 
 healthbar = Healthbar(100)
-player = Player(x=start[0] * TILE_SIZE, y=start[1] * TILE_SIZE, speed=3, healthbar=healthbar)
+player = Player(x=start[0] * TILE_SIZE, y=start[1] * TILE_SIZE, speed=5, healthbar=healthbar, size=TILE_SIZE // 1.5)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE)
-currency = Currency(initial_gold=200)
+currency = Currency(initial_gold=0)
 catalog = Catalog()
+
+save_upgrades = currency.load()
+for upgrade in catalog.items:
+    times = save_upgrades.get(upgrade.name, 0)
+    for _ in range(times):
+        player.apply_upgrade(upgrade)
 
 lobby_screen(screen, player, currency, catalog, SCREEN_WIDTH)
 
@@ -53,6 +60,8 @@ while running:
                 rect = pygame.Rect(enemy.position[0], enemy.position[1], enemy.size, enemy.size)
                 if rect.collidepoint(bx, by):
                     enemy.take_damage(player.bullet_damage)
+                    if not enemy.alive:
+                        currency.save_reward(10, catalog.items)
                     bullet.deactivate()
 
     for event in pygame.event.get():
@@ -91,6 +100,7 @@ while running:
         level += 1
         map_info = game_map.fetch_map_level(level)
         if map_info:
+            currency.save_reward(50, catalog.items)
             layout = map_info["layout"]
             start = map_info["start"]
             exit_tile = map_info["exit"]

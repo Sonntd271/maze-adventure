@@ -1,4 +1,4 @@
-catalog: 
+catalog:
   - name: Increase Health
     cost: 20
     value: 20
@@ -7,3 +7,11 @@ catalog:
     cost: 30
     value: 5
     stat: damage
+  - name: Increase Speed
+    cost: 25
+    value: 1
+    stat: speed
+  - name: Increase Max Bullets
+    cost: 40
+    value: 1
+    stat: max_bullets

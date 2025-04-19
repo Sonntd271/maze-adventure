@@ -36,6 +36,10 @@ class Character:
     def size(self):
         return self.__size
     
+    @size.setter
+    def size(self, value):
+        self.__size = value
+    
     @property
     def color(self):
         return self.__color
@@ -62,9 +66,6 @@ class Character:
             self.__color,
             pygame.Rect(self.__position[0], self.__position[1], self.__size, self.__size)
         )
-
-        # Draw healthbar too
-        self.health.draw(surface, self.__position[0], self.__position[1] - 15)
 
 if __name__ == "__main__":
     character = Character(0, 0, 5, healthbar=Healthbar(100))

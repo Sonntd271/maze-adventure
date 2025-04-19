@@ -44,6 +44,8 @@ def handle_movement(keys, character, game_map, level, tile_size):
     if can_move:
         character.position = [next_x, next_y]
 
+    character.update_direction(dx, dy)
+
 def spawn_enemies(num, layout, tile_size):
     enemies = []
     h, w = len(layout), len(layout[0])
@@ -53,7 +55,7 @@ def spawn_enemies(num, layout, tile_size):
         x, y = random.randint(1, w - 2), random.randint(1, h - 2)
         if layout[y][x] == 0:
             ex, ey = x * tile_size, y * tile_size
-            enemy = Enemy(ex, ey, speed=1, healthbar=Healthbar(50))
+            enemy = Enemy(ex, ey, speed=1, healthbar=Healthbar(50), size=tile_size // 1.5)
             enemies.append(enemy)
             count += 1
     return enemies
@@ -71,12 +73,15 @@ def lobby_screen(screen, player, currency, catalog, screen_width):
         screen.blit(gold_display, (50, 100))
 
         for idx, upgrade in enumerate(catalog.items):
-            u_text = f"{idx + 1}. {upgrade.name} (+{upgrade.value}) - {upgrade.cost} gold"
+            u_text = f"{idx + 1}. {upgrade.name} (+{upgrade.value}) - {upgrade.cost} gold [x{upgrade.count}]"
             upgrade_surf = font.render(u_text, True, (255, 255, 255))
             screen.blit(upgrade_surf, (50, 150 + idx * 40))
 
         start_surf = font.render("Press ENTER to start", True, (180, 180, 180))
         screen.blit(start_surf, (50, 300))
+
+        reset_msg = font.render("Press R to reset save", True, (255, 100, 100))
+        screen.blit(reset_msg, (50, 350))
 
         pygame.display.flip()
 
@@ -85,11 +90,17 @@ def lobby_screen(screen, player, currency, catalog, screen_width):
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
-                if pygame.K_1 <= event.key <= pygame.K_3:
+                if pygame.K_1 <= event.key <= pygame.K_4:
                     idx = event.key - pygame.K_1
                     if idx < len(catalog.items):
                         upgrade = catalog.items[idx]
                         if currency.spend(upgrade.cost):
                             player.apply_upgrade(upgrade)
+                elif event.key == pygame.K_r:
+                    currency.reset()
+                    for _ in range(len(catalog.items)):
+                        catalog.items[_].purchased = False
                 elif event.key == pygame.K_RETURN:
                     return
+        
+    currency.save([u.name for u in catalog.items if u.purchased])

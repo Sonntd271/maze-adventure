@@ -4,6 +4,7 @@ class Upgrade:
         self.__cost = cost
         self.__target_attr = target_attr
         self.__value = value
+        self.__count = 0
 
     @property
     def name(self):
@@ -20,3 +21,9 @@ class Upgrade:
     @property
     def value(self):
         return self.__value
+    
+    @property
+    def count(self): 
+        return self.__count
+    
+    def increment(self): self.__count += 1
